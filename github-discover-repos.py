@@ -21,7 +21,7 @@ output_csv_file_path = args.outputCsv
 # Get repositories in the organization
 get_repositories_response = requests.get(f'https://api.github.com/orgs/{organization}/repos?per_page=100&page=1', auth=('', connectionToken))
 if get_repositories_response.status_code != 200:
-    print('Error: Unable to retrieve repositories from Github')
+    print(f'Error: Unable to retrieve repositories from Github. Status code: {get_repositories_response.status_code}, Reason: {get_repositories_response.reason}')
     exit(1)
 get_projects_results = get_repositories_response.json()
 with open(f"{output_csv_file_path}", mode='w', newline='') as file:

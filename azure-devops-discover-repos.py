@@ -19,7 +19,7 @@ output_csv_file_path = args.outputCsv
 # Get projects in the organization
 get_projects_response = requests.get(f'https://dev.azure.com/{organization}/_apis/projects?api-version=7.0', auth=('', connectionToken))
 if get_projects_response.status_code != 200:
-    print('Error: Unable to retrieve projects from Azure DevOps')
+    print(f'Error: Unable to retrieve projects from Azure DevOps. Status code: {get_projects_response.status_code}, Reason: {get_projects_response.reason}')
     exit(1)
 
 get_projects_results = get_projects_response.json()
