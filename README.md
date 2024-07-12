@@ -27,9 +27,10 @@ Complete! Successfully cloned and ran cloc for 3 / 3 repositories. See logs abov
 ```
 
 ## Requirements
-1. **Recommended**: use the provided Dockerfile for containerization, encapsulating all necessary dependencies and simplifying setup and execution. Simply clone this repository, build, and run the docker container. Instructions can be found [here](#Building-and-Running-a-Docker-Container). If you plan to run from your local machine and not within the Docker container, please refer to the [prerequisites](#Local-Requirements---If-Not-Using-Docker).
+1. **Recommended**: Use the provided Dockerfile for containerization, encapsulating all necessary dependencies. Simply clone this repository, build, and run the docker container. Instructions can be found [here](#Building-and-Running-a-Docker-Container).
+    - If you plan to run from your local machine and not within the Docker container, please refer to the [prerequisites](#Local-Requirements---If-Not-Using-Docker).
 
-2. An **Access Token** for the appropriate DevOps platform (GitHub, Azure DevOps, GitLab, or Bitbucket) will be required. This token will need **read** access each of the repositories within the organization in order to discover and clone the repositories.
+3. An **Access Token** for your appropriate DevOps platform (GitHub, Azure DevOps, GitLab, or Bitbucket) with **read** access for each of the repositories within the organization.
 
 ## Usage
 
