@@ -78,7 +78,7 @@ docker run -d --name your-container-name your-image-name
 docker exec -it your-container-name /bin/sh
 ```
 
-Once the Docker container is up and running, follow the steps below to discover repositories and calculate lines of code using the provided scripts.
+Once the Docker container is up and running, follow the [steps](#Usage) to discover repositories and calculate lines of code using the provided scripts.
 
 ### Local Requirements - If Not Using Docker
 If you plan to run the python scripts on your local machine without using Docker, please ensure the following dependencies are installed on your system:
