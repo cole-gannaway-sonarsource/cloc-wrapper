@@ -84,3 +84,18 @@ cloc --sum-reports <repo_report_file_name1> <repo_report_file_name2> ...
 # Note that this report can not be used in the summation report
 cloc --report-file=<repo_report_file_name> <path_to_repository> --by-file
 ```
+
+## Building and Running a Docker Container
+
+To build a Docker container from a Dockerfile in the current directory, run the following command:
+
+```sh
+# Build the docker container locally
+docker build -t your-image-name .
+
+# Run the docker container
+docker run -d --name your-container-name your-image-name
+
+# Connect to the container
+docker exec -it your-container-name /bin/sh
+```

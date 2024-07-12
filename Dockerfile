@@ -16,9 +16,9 @@ RUN pip3 install requests
 WORKDIR /opt/sonar-loc-count/
 
 # Copy scripts
-COPY scripts/cloc.py cloc.py
-COPY scripts/azure-devops-discover-repos.py azure-devops-discover-repos.py
-COPY scripts/github-discover-repos.py github-discover-repos.py
+COPY cloc.py cloc.py
+COPY azure-devops-discover-repos.py azure-devops-discover-repos.py
+COPY github-discover-repos.py github-discover-repos.py
 
 
 # Do nothing
