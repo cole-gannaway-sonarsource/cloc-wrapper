@@ -72,7 +72,9 @@ The output directory will contain two reports for each repository: one by progra
 ## Appendix
 
 ### Building and Running a Docker Container
-Prerequisite: Install [docker](https://www.docker.com/products/docker-desktop/) for your platform.
+
+**Prerequisite**: Install [docker](https://www.docker.com/products/docker-desktop/) for your platform.
+
 To build a Docker container from a Dockerfile in the current directory, run the following command:
 
 ```sh
