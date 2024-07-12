@@ -18,7 +18,7 @@ Complete! Successfully cloned and ran cloc for 3 / 3 repositories. See logs abov
 ```
 
 ## Requirements
-1. **Recommended**: use the provided Dockerfile for containerization, encapsulating all necessary dependencies and simplifying setup and execution. Simply clone this repository, build, and run the docker container. Instructions can be found [here](#docker). If you plan to run from your local machine and not within the Docker container, please refer to the [prerequisites](#local).
+1. **Recommended**: use the provided Dockerfile for containerization, encapsulating all necessary dependencies and simplifying setup and execution. Simply clone this repository, build, and run the docker container. Instructions can be found [here](#Building-and-Running-a-Docker-Container). If you plan to run from your local machine and not within the Docker container, please refer to the [prerequisites](#Local-Requirements---If-Not-Using-Docker).
 
 2. An **Access Token** for the appropriate DevOps platform (GitHub, Azure DevOps, GitLab, or Bitbucket) will be required. This token will need **read** access each of the repositories in order to discover and clone the repositories.
 
@@ -63,7 +63,7 @@ The output directory will contain 2 reports for each of the repositories that we
 
 ## Appendix
 
-### Building and Running a Docker Container #docker
+### Building and Running a Docker Container
 
 To build a Docker container from a Dockerfile in the current directory, run the following command:
 
@@ -80,7 +80,7 @@ docker exec -it your-container-name /bin/sh
 
 Once the Docker container is up and running, follow the steps below to discover repositories and calculate lines of code using the provided scripts.
 
-### Requirements (If Not Using Docker) #local
+### Local Requirements - If Not Using Docker
 If you plan to run the python scripts on your local machine without using Docker, please ensure the following dependencies are installed on your system:
 
 - **cloc**: A tool for counting lines of code. [Installation Guide](https://github.com/AlDanial/cloc)
