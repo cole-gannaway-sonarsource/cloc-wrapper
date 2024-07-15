@@ -1,10 +1,10 @@
-# Sonar Lines of Code (LOC) Count Tool
+# Cloc Wrapper
 
 ## Overview
 
-The Sonar LOC Count Tool simplifies the process of obtaining an accurate Lines of Code (LOC) count for an organization's DevOps platform. This tool can automatically discover repositories and calculate the total LOC, with just two Python scripts.
+This tool simplifies the process of obtaining an accurate Lines of Code (LOC) count for an organization's DevOps platform. It can automatically discover repositories and calculate the total LOC with just two Python scripts.
 
-Simply run the first [step](#step-1-discovering-respositories-within-an-organization) to disover all repositories in your **DevOps Organization**.
+Simply run the first [step](#step-1-discovering-respositories-within-an-organization) to discover all repositories in your **DevOps Organization**.
 ```sh
 python3 azure-devops-discover-repos.py  --organization <YourOrganizationName>  --connectionToken <YourPersonalAccessToken>  --outputCsv <PathToOutputCsv>
 ```
@@ -27,13 +27,14 @@ Complete! Successfully cloned and ran cloc for 3 / 3 repositories. See logs abov
 ```
 
 ## Requirements
-1. **Recommended**: use the provided Dockerfile for containerization, encapsulating all necessary dependencies and simplifying setup and execution. Simply clone this repository, build, and run the docker container. Instructions can be found [here](#Building-and-Running-a-Docker-Container). If you plan to run from your local machine and not within the Docker container, please refer to the [prerequisites](#Local-Requirements---If-Not-Using-Docker).
+1. **Recommended**: Use the provided Dockerfile for containerization, encapsulating all necessary dependencies. Simply clone this repository, build, and run the docker container. Instructions can be found [here](#Building-and-Running-a-Docker-Container).
+    - If you plan to run from your local machine and not within the Docker container, please refer to the [prerequisites](#Local-Requirements---If-Not-Using-Docker).
 
-2. An **Access Token** for the appropriate DevOps platform (GitHub, Azure DevOps, GitLab, or Bitbucket) will be required. This token will need **read** access each of the repositories within the organization in order to discover and clone the repositories.
+3. An **Access Token** for your appropriate DevOps platform (GitHub, Azure DevOps, GitLab, or Bitbucket) with **read** access for each of the repositories within the organization.
 
 ## Usage
 
-#### Step 1: Discovering Respositories within an Organization
+#### Step 1: Discovering Repositories within an Organization
 
 This initial step leverages the APIs of major DevOps platforms (GitHub, Azure DevOps, GitLab, and Bitbucket) to identify all repositories within an organization. The results are saved to a CSV file, which includes a specially constructed URL for each repository, complete with an authentication token for `git clone` operations in [Step 2](#step-2-calculating-lines-of-code).
 
@@ -72,17 +73,19 @@ The output directory will contain two reports for each repository: one by progra
 
 ### Building and Running a Docker Container
 
+**Prerequisite**: Install [docker](https://www.docker.com/products/docker-desktop/) for your platform.
+
 To build a Docker container from a Dockerfile in the current directory, run the following command:
 
 ```sh
 # Build the docker container locally
-docker build -t your-image-name .
+docker build -t cloc-wrapper-image .
 
 # Run the docker container
-docker run -d --name your-container-name your-image-name
+docker run -d --name cloc-wrapper cloc-wrapper-image
 
 # Connect to the container
-docker exec -it your-container-name /bin/sh
+docker exec -it cloc-wrapper /bin/sh
 ```
 
 Once the Docker container is up and running, follow the [steps](#Usage) to discover repositories and calculate lines of code using the provided scripts.
