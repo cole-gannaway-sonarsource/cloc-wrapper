@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description='Script to run cloc against reposit
 # Add arguments
 parser.add_argument('--inputCsv', type=str, help='Input csv containing the repo id, repo name, and git clone url with authentication token', required=True)
 parser.add_argument('--outputDir', type=str, help='Output folder that you want to dump the cloc reports to. Make sure not to add a trailing slash', required=True)
+parser.add_argument('--commandsFilePath', type=str, help="Path to write a text file containing the commands that were run during this invocation for reference later", required=True)
 parser.add_argument('--clocPath', type=str, help="Path to cloc executable. Default is 'cloc'", required=False, default="cloc")
 
 # Parse the arguments
@@ -17,6 +18,7 @@ args = parser.parse_args()
 path_to_input_csv = args.inputCsv
 path_to_output_directory = args.outputDir
 path_to_cloc = args.clocPath
+path_to_commands_file = args.commandsFilePath
 
 def create_folder(folder_path):
     try :
@@ -47,6 +49,7 @@ repo_report_file_names=""
 failed_repos = []
 success_repos = []
 total_repos_count=len(repos_data)
+command_strings = []
 # Now, loop through the stored rows
 for index, row in enumerate(repos_data, start=1):  # Adding an index starting from 1
     repo_id, repo, repo_url = row
@@ -55,16 +58,23 @@ for index, row in enumerate(repos_data, start=1):  # Adding an index starting fr
     print(f"Processing repo {index}/{total_repos_count}: {repo} - repo_id: {repo_id}")
     # Clone repo
     try:
-        print(f"git clone {repo_url}")
+        # Run git clone
+        command_full_string = f"git clone {repo_url}"
+        print(command_full_string)
+        command_strings.append(command_full_string)
         subprocess.run(["git", "clone", repo_url, "--single-branch"], check=True)
         print(f"Successfully cloned {repo_url}")
         # Run cloc
         repo_report_file_name_path = os.path.join(path_to_output_directory, repo_report_file_name)
-        print(f"{path_to_cloc} --report-file={repo_report_file_name_path} {repo}")
+        command_full_string = f"{path_to_cloc} --report-file={repo_report_file_name_path} {repo}"
+        print(command_full_string)
+        command_strings.append(command_full_string)
         subprocess.run([f"{path_to_cloc}", f"--report-file={repo_report_file_name_path}", f"{repo}"], check=True)
         # Run cloc by file
         repo_report_by_file_file_name_path = os.path.join(path_to_output_directory, repo_report_by_file_file_name)
-        print(f"{path_to_cloc} --report-file={repo_report_by_file_file_name_path} {repo}")
+        command_full_string = f"{path_to_cloc} --report-file={repo_report_by_file_file_name_path} {repo}"
+        print(command_full_string)
+        command_strings.append(command_full_string)
         subprocess.run([f"{path_to_cloc}", f"--report-file={repo_report_by_file_file_name_path}", "--by-file", f"{repo}"], check=True)
         # Delete repo
         delete_folder(f"{repo}")
@@ -88,7 +98,16 @@ print(failed_repos)
 print("Summarizing reports...")
 if (success_repos_count > 0):   
     # Summarize reports using cloc
-    print(f"{path_to_cloc} --sum-report {repo_report_file_names}")
+    command_full_string = f"{path_to_cloc} --sum-report {repo_report_file_names}"
+    print(command_full_string)
+    command_strings.append(command_full_string)
     subprocess.run([f"{path_to_cloc}", "--sum-reports"] + repo_report_file_names.split(), check=True)
 
 print(f"Complete! Successfully cloned and ran cloc for {success_repos_count} / {total_repos_count} repositories. See logs above for more details.")
+
+# Write out the commands that were run to a file
+if (len(command_strings) > 0):
+    with open(f"{path_to_commands_file}", "w") as f:
+        for command in command_strings:
+            f.write(f"{command}\n")
+    print(f"Commands that were run are written to {path_to_commands_file}")

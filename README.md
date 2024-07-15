@@ -10,7 +10,7 @@ python3 azure-devops-discover-repos.py  --organization <YourOrganizationName>  -
 ```
 Then run the second [step](#step-2-calculating-lines-of-code) to count the LOC of each repository
 ```sh
-python3 cloc.py --inputCsv <PathToInputCsv> --outputDir <PathToOutputDirectory>
+python3 cloc.py --inputCsv <PathToInputCsv> --outputDir <PathToOutputDirectory> --commandsFilePath <CommandsFilePath>
 ```
 This will output the total Lines of Code (LOC) count for the entire organization. See example below.
 ```
@@ -63,10 +63,10 @@ Following repository discovery, the tool clones each repository using the URLs f
 To perform this step, run:
 
 ```sh
-python3 cloc.py --inputCsv <PathToInputCsv> --outputDir <PathToOutputDirectory>
+python3 cloc.py --inputCsv <PathToInputCsv> --outputDir <PathToOutputDirectory> --commandsFilePath <CommandsFilePath>
 ```
 
-The output directory will contain two reports for each repository: one by programming language and one by file. If you would like to adjust the particular results, you can run the cloc tool again. Please refer to the cloc manual by running `cloc --help`. Below are some helpful [cloc commands](#important-commands).
+The output directory will contain two reports for each repository: one by programming language and one by file.  All `git clone` and `cloc` commands performed will be saved in the commands file for later reference. If you would like to adjust the results, you can run the cloc tool again using these commands. Please refer to the cloc manual by running `cloc --help`. Below are some helpful [cloc commands](#important-commands).
 
 ## Appendix
 
