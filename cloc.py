@@ -62,7 +62,7 @@ for index, row in enumerate(repos_data, start=1):  # Adding an index starting fr
         command_full_string = f"git clone {repo_url}"
         print(command_full_string)
         command_strings.append(command_full_string)
-        subprocess.run(["git", "clone", repo_url, "--single-branch"], check=True)
+        subprocess.run(["git", "clone","--depth=1", repo_url, "--single-branch"], check=True)
         print(f"Successfully cloned {repo_url}")
         # Run cloc
         repo_report_file_name_path = os.path.join(path_to_output_directory, repo_report_file_name)
