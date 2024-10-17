@@ -314,7 +314,7 @@ total_loc_count = 0
 
 # Write out the repo info to a file using os separator
 combined_csv_output_path = os.path.join(path_to_output_directory, f"AAA-{organization}-combined-total-lines.csv")
-with open(combined_csv_output_path, "w") as f:
+with open(combined_csv_output_path, "w", newline='') as f:
     csv_writer = csv.writer(f)
     csv_writer.writerow(["repo_id", "code"])
     for repo_info in repo_info_arr:
