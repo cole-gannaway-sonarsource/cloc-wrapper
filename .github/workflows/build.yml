@@ -1,0 +1,78 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_windows:
+        description: 'Run Windows build'
+        required: false
+        default: false
+        type: boolean
+      run_mac:
+        description: 'Run Mac build'
+        required: false
+        default: false
+        type: boolean
+      run_linux:
+        description: 'Run Linux build'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build_windows:
+    if: github.event.inputs.run_windows == 'true' || (github.event.inputs.run_windows == 'false' && github.event.inputs.run_mac == 'false' && github.event.inputs.run_linux == 'false')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install pyinstaller
+      - name: Build with PyInstaller
+        run: pyinstaller your_app_name.spec
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-build
+          path: dist/
+
+  build_mac:
+    if: github.event.inputs.run_mac == 'true' || (github.event.inputs.run_windows == 'false' && github.event.inputs.run_mac == 'false' && github.event.inputs.run_linux == 'false')
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install pyinstaller
+      - name: Build with PyInstaller
+        run: pyinstaller your_app_name.spec
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: mac-build
+          path: dist/
+
+  build_linux:
+    if: github.event.inputs.run_linux == 'true' || (github.event.inputs.run_windows == 'false' && github.event.inputs.run_mac == 'false' && github.event.inputs.run_linux == 'false')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install pyinstaller
+      - name: Build with PyInstaller
+        run: pyinstaller your_app_name.spec
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-build
+          path: dist/
