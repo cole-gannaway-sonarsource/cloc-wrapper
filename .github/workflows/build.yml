@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: pip install pyinstaller
       - name: Build with PyInstaller
-        run: pyinstaller your_app_name.spec
+        run: pyinstaller main.spec
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: pip install pyinstaller
       - name: Build with PyInstaller
-        run: pyinstaller your_app_name.spec
+        run: pyinstaller main.spec
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -70,7 +70,7 @@ jobs:
       - name: Install dependencies
         run: pip install pyinstaller
       - name: Build with PyInstaller
-        run: pyinstaller your_app_name.spec
+        run: pyinstaller main.spec
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
