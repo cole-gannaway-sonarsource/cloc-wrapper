@@ -3,6 +3,12 @@ import json
 import argparse
 import os
 import shutil
+import stat
+
+def sanitize_path(path):
+    if os.name == "nt": # check if os is windows
+        return f'"{path}"'
+    return path
 
 parser = argparse.ArgumentParser(description='Script to discover Github repositories within a Github organization.')
 
@@ -23,7 +29,7 @@ access_token = args.access_token
 use_http = args.use_http
 devops_base_url_override = args.devops_base_url_override
 devops = args.devops
-path_to_cloc = args.clocPath
+path_to_cloc = sanitize_path(args.clocPath)
 
 # set global variables
 print(f'Use https: {use_http}, {args.use_http}')
@@ -194,11 +200,17 @@ def discover_repositories_bitbucket():
         repo_info_arr.append(RepoInfo(organization, project_name, repo["slug"], default_branch, clone_url).to_dict())
     return repo_info_arr
 
+# Needed for Windows to delete git object files
+def make_writable_and_delete(func, path, _):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
 def delete_folder(folder_path):
-    if os.path.exists(folder_path):
-        shutil.rmtree(folder_path)
+    absolute_path = os.path.abspath(folder_path)
+    if os.path.exists(absolute_path):
+        shutil.rmtree(absolute_path, onerror=make_writable_and_delete)
     else:
-        print(f"The folder {folder_path} does not exist.")
+        print(f"The folder {absolute_path} does not exist.")
 
 repo_info_arr = []
 if devops == 'GitLab':
@@ -262,9 +274,7 @@ for index, repo_info in enumerate(repo_info_arr, start=1):  # Adding an index st
     if (exit_code != 0):
         exit(exit_code)
     # Delete folder
-    exit_code = os.system(f"rm -rf {repo_name}")
-    if (exit_code != 0):
-        exit(exit_code)
+    delete_folder(repo_name)
     # Add report file name to list
     repo_report_file_names += f"{repo_report_file_name_path} "
     success_repos.append(repo_id)
