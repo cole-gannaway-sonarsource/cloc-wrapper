@@ -4,6 +4,7 @@ import argparse
 import os
 import shutil
 import stat
+import csv
 
 def sanitize_path(path):
     if os.name == "nt": # check if os is windows
@@ -18,7 +19,7 @@ parser.add_argument('--access_token', type=str, help='Github personal access tok
 parser.add_argument('--use_http', action='store_true', help='Use HTTP instead of HTTPS', required=False)
 parser.add_argument('--devops_base_url_override', type=str, help='Overrides the base URL for the DevOps provider. Defaults will be github.com, dev.azure.com, bitbucket.org, or gitlab.com. However, you can override this with your own self-hosted ip or domain', required=False)
 parser.add_argument('--devops', type=str, help='GitHub, AzureDevOps, Bitbucket, GitLab, or Local', required=True)
-parser.add_argument('--clocPath', type=str, help="Path to cloc executable. Default is 'cloc'", required=False, default="cloc")
+parser.add_argument('--go_cloc_path', type=str, help="Path to go-cloc executable. Default is 'go-cloc'", required=False, default="go-cloc")
 
 # Parse the arguments
 args = parser.parse_args()
@@ -30,6 +31,7 @@ use_http = args.use_http
 devops_base_url_override = args.devops_base_url_override
 devops = args.devops
 path_to_cloc = sanitize_path(args.clocPath)
+go_cloc_path = sanitize_path(args.go_cloc_path)
 
 # set global variables
 print(f'Use https: {use_http}, {args.use_http}')
@@ -212,6 +214,26 @@ def delete_folder(folder_path):
     else:
         print(f"The folder {absolute_path} does not exist.")
 
+def execute_go_cloc(go_cloc_command):
+    # Run the command and capture the output
+    try:
+        last_line = ""
+        with os.popen(go_cloc_command) as process:
+            for line in process:
+                print(line, end='')  # Print each line to standard output
+                last_line = line.strip()  # Keep track of the last line
+
+        # Parse the desired value from the last line
+        if last_line.isdigit():
+            total_loc = int(last_line)
+            return total_loc
+        else:
+            print("Expected output not found in the last line")
+            return None
+    except OSError as e:
+        print(f"Error executing {go_cloc_path}: {e}")
+        exit(1)
+
 repo_info_arr = []
 if devops == 'GitLab':
     repo_info_arr = discover_repositories_gitlab()
@@ -243,9 +265,6 @@ for index, repo_info in enumerate(repo_info_arr, start=1):  # Adding an index st
     default_branch = repo_info["default_branch"]
     organization_name = repo_info["organization_name"]
 
-    repo_report_file_name = f"{repo_id}.txt"
-    repo_report_by_file_file_name = f"{repo_id}-by-file.txt"
-
     print(f"Processing repo {index}/{total_repos_count}: {repo_name} - repo_id: {repo_id}")
     # Clone repo
     command_full_string = f"git clone --depth=1 {clone_url} --single-branch"
@@ -255,30 +274,19 @@ for index, repo_info in enumerate(repo_info_arr, start=1):  # Adding an index st
     if (exit_code != 0):
         exit(exit_code)
     print(f"Successfully cloned {clone_url}")
-    # Run cloc
-    repo_report_file_name_path = os.path.join(path_to_output_directory, repo_report_file_name)
-    # example: cloc --report-file=repo_id.txt repo_id
-    command_full_string = f"{path_to_cloc} --report-file={repo_report_file_name_path} {repo_name}"
+    # Run go-cloc
+    # example: ./go-cloc --local-file-path {repo_name} --scan-id opencv --results-directory-path .dev/results/
+    command_full_string = f"{go_cloc_path} --local-file-path {repo_name} --scan-id {repo_id} --results-directory-path {path_to_output_directory}"
     print(command_full_string)
     command_strings.append(command_full_string)
-    exit_code = os.system(command_full_string)
-    if (exit_code != 0):
-        exit(exit_code)
-    # Run cloc by file
-    repo_report_by_file_file_name_path = os.path.join(path_to_output_directory, repo_report_by_file_file_name)
-    # example: cloc --report-file=repo_id-by-file.txt --by-file repo_id
-    command_full_string = f"{path_to_cloc} --report-file={repo_report_by_file_file_name_path} --by-file {repo_name}"
-    print(command_full_string)
-    command_strings.append(command_full_string)
-    exit_code = os.system(command_full_string)
-    if (exit_code != 0):
-        exit(exit_code)
+    repo_total_loc = execute_go_cloc(command_full_string)
+    # store the result in the repo_info object
+    repo_info["total_loc"] = repo_total_loc
     # Delete folder
     delete_folder(repo_name)
     # Add report file name to list
-    repo_report_file_names += f"{repo_report_file_name_path} "
     success_repos.append(repo_id)
-    
+
 failed_repos_count = len(failed_repos)
 success_repos_count = len(success_repos)
 total_repos_count = failed_repos_count + success_repos_count
@@ -289,16 +297,6 @@ print(success_repos)
 print("Failed repos:")
 print(failed_repos)
 
-print("Summarizing reports...")
-if (success_repos_count > 0):   
-    # Summarize reports using cloc
-    # example cloc --sum-reports repo_id.txt repo_id2.txt
-    command_full_string = f"{path_to_cloc} --sum-report {repo_report_file_names}"
-    print(command_full_string)
-    command_strings.append(command_full_string)
-    exit_code = os.system(command_full_string)
-    if (exit_code != 0):
-        exit(exit_code)
 
 print(f"Complete! Successfully cloned and ran cloc for {success_repos_count} / {total_repos_count} repositories. See logs above for more details.")
 
@@ -308,3 +306,22 @@ if (len(command_strings) > 0):
         for command in command_strings:
             f.write(f"{command}\n")
     print(f"Commands that were run are written to {path_to_commands_file}")
+
+
+# sort repo_info_arr by total_loc descending
+repo_info_arr.sort(key=lambda x: x["total_loc"], reverse=True)
+total_loc_count = 0
+
+
+# Write out the repo info to a file using os separator
+combined_csv_output_path = os.path.join(path_to_output_directory, f"AAA-{organization}-combined-total-lines.csv")
+with open(combined_csv_output_path, "w") as f:
+    csv_writer = csv.writer(f)
+    csv_writer.writerow(["repo_id", "code"])
+    for repo_info in repo_info_arr:
+        csv_writer.writerow([repo_info["id"], repo_info["total_loc"]])
+        total_loc_count += int(repo_info["total_loc"])
+    print(f"Combined total LOC can be found in {combined_csv_output_path}")
+
+print(f"Total LOC for {organization} is : {total_loc_count}")
+print(f"{total_loc_count}")
