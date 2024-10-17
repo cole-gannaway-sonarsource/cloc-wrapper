@@ -30,7 +30,6 @@ access_token = args.access_token
 use_http = args.use_http
 devops_base_url_override = args.devops_base_url_override
 devops = args.devops
-path_to_cloc = sanitize_path(args.clocPath)
 go_cloc_path = sanitize_path(args.go_cloc_path)
 
 # set global variables
